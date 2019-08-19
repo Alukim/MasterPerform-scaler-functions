@@ -7,6 +7,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="1.8.2" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.29" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.24.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
