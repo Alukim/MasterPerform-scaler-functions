@@ -17,7 +17,7 @@ namespace MasterPerform
     {
         [FunctionName("MasterPerformMetricsCollector")]
         public static async Task Run(
-            [TimerTrigger("* 0/1 * * * *")] TimerInfo myTimer,
+            [TimerTrigger("0 */5 * * * *")] TimerInfo myTimer,
             [OrchestrationClient] DurableOrchestrationClient context,
             ILogger log)
         {
