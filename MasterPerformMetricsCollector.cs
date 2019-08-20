@@ -16,8 +16,8 @@ namespace MasterPerform
     public static class MasterPerformMetricsCollector
     {
         [FunctionName("MasterPerformMetricsCollector")]
-        public static async Task<List<string>> RunOrchestrator(
-            [TimerTrigger("0/10 * * * * *")] TimerInfo myTimer,
+        public static async Task Run(
+            [TimerTrigger("* 0/1 * * * *")] TimerInfo myTimer,
             [OrchestrationClient] DurableOrchestrationClient context,
             ILogger log)
         {
@@ -29,7 +29,7 @@ namespace MasterPerform
             outputs.Add(await context.StartNewAsync(nameof(SayHello), "London"));
 
             // returns ["Hello Tokyo!", "Hello Seattle!", "Hello London!"]
-            return outputs;
+            //return outputs;
         }
 
         [FunctionName("SayHello")]
