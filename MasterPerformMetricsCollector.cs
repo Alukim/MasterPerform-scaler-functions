@@ -9,6 +9,7 @@ using MasterPerform.Utilities;
 using MasterPerform.Contracts;
 using MasterPerform.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using Newtonsoft.Json;
 
 namespace MasterPerform
 {
@@ -28,13 +29,14 @@ namespace MasterPerform
         public static async Task Run(
             [TimerTrigger("0 * * * * *")] TimerInfo myTimer,
             [OrchestrationClient] DurableOrchestrationClient client,
-            [Table("MyTable", "MyPartition", "{queueTrigger}")] MetricData data,
+            [Microsoft.Azure.WebJobs.Table("MetricDatas", "Metrics", "001")] MetricData data,
             IAsyncCollector<MetricData> table,
             ILogger log)
         {
             log.LogMetricsCollector($"Executed at: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
 
             var t = await client.GetStatusAsync(InstanceId);
+            var content = JsonConvert.DeserializeObject<Content>(data.Content);
 
             if (IsStarted)
             {
@@ -45,12 +47,14 @@ namespace MasterPerform
 
                 log.LogMetricsCollector($"Calculate current part metrics.");
 
-                var currentDayActiveMessageCount = currentActiveMessageCount - data.MessageCount;
+                var currentDayActiveMessageCount = currentActiveMessageCount - content.MessageCount;
 
-                data.MessageCount = currentActiveMessageCount;
-                await table.AddAsync(data);
-
+                content.MessageCount = currentActiveMessageCount;
+                content.AddData(currentActiveMessageCount);
                 var @event = new MetricCollected(currentDayActiveMessageCount);
+
+                data.Content = JsonConvert.SerializeObject(content);
+                await table.AddAsync(data);
 
                 log.LogMetricsCollector($"Raise event to scaling function.");
                 await client.RaiseEventAsync(InstanceId, nameof(MetricCollected), @event);
@@ -64,12 +68,12 @@ namespace MasterPerform
                 MoveAverrageParam = EnvironmentHelpers.GetIntegerEnvironmentParameter(nameof(MasterPerformMetricsCollector.MoveAverrageParam));
                 Period = EnvironmentHelpers.GetIntegerEnvironmentParameter(nameof(MasterPerformMetricsCollector.Period));
                 Q = EnvironmentHelpers.GetIntegerEnvironmentParameter(nameof(MasterPerformMetricsCollector.Q));
-                var costForPeriod = EnvironmentHelpers.GetIntegerEnvironmentParameter("CostForPeriod");
+                var costForPeriod = EnvironmentHelpers.GetDoubleEnvironmentParameter("CostForPeriod");
                 CostOfOneMachine = EnvironmentHelpers.GetIntegerEnvironmentParameter(nameof(MasterPerformMetricsCollector.CostOfOneMachine));
 
                 log.LogMetricsCollector($"Start first forecasting.");
                 IsStarted = true;
-                InstanceId = await client.StartNewAsync(nameof(ScalingFunction), new ScalingState(data.Data, costForPeriod));
+                InstanceId = await client.StartNewAsync(nameof(ScalingFunction), new ScalingState(content.Data, costForPeriod));
             }
         }
 

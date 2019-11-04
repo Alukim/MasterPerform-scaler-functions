@@ -13,5 +13,15 @@ namespace MasterPerform.Utilities
 
             throw new Exception($"Cannot parse parameter: {parameterName} to integer.");
         }
+
+        public static double GetDoubleEnvironmentParameter(string parameterName)
+        {
+            var param = Environment.GetEnvironmentVariable(parameterName);
+
+            if(double.TryParse(param, out var parsed))
+                return parsed;
+
+            throw new Exception($"Cannot parse parameter: {parameterName} to integer.");
+        }
     }
 }

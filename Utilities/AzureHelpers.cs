@@ -9,9 +9,9 @@ namespace MasterPerform.Utilities
     {
          public static IAzure GetAzureConnection()
         {
-            var clientId = Environment.GetEnvironmentVariable("clientId");
-            var clientSecret = Environment.GetEnvironmentVariable("clientSecret");
-            var tenantId = Environment.GetEnvironmentVariable("tenantId");
+            var clientId = Environment.GetEnvironmentVariable("ClientId");
+            var clientSecret = Environment.GetEnvironmentVariable("ClientSecret");
+            var tenantId = Environment.GetEnvironmentVariable("TenantId");
 
             var credentials = SdkContext.AzureCredentialsFactory
                 .FromServicePrincipal(clientId, clientSecret, tenantId, AzureEnvironment.AzureGlobalCloud);
@@ -23,9 +23,9 @@ namespace MasterPerform.Utilities
 
         public static double GetCurrentMetrics()
         {
-            var connectionString = Environment.GetEnvironmentVariable("serviceBusConnectionString");
-            var serviceBusQueueName = Environment.GetEnvironmentVariable("serviceBusQueueName");
-            var serviceBusResourceId = Environment.GetEnvironmentVariable("serviceBusResourceId");
+            var connectionString = Environment.GetEnvironmentVariable("ServiceBusConnectionString");
+            var serviceBusQueueName = Environment.GetEnvironmentVariable("ServiceBusQueueName");
+            var serviceBusResourceId = Environment.GetEnvironmentVariable("ServiceBusResourceId");
 
             var azure = AzureHelpers.GetAzureConnection();
             var sbn = azure.ServiceBusNamespaces.GetById(serviceBusResourceId);
